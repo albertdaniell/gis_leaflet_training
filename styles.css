@@ -1,0 +1,20 @@
+h1{
+    font-size: large;
+    text-align: center;
+}
+
+#my_map{
+    /* background: #000; */
+    /* padding: 200px; */
+    height: 80vh;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+#mapimage{
+    height: auto;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+}

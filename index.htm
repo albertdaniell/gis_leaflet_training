@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./lib/leaflet.css" />
+
+    <script src="./lib/leaflet.js"></script>
+    <!-- <script src="./customjs.js"></script> -->
+
+    <script src="./data/geojson/kenya.geojson"></script>
+
+    <!-- Import css -->
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Kenya Counties</h1>
+    <p>Kenya is a country in East Africa with coastline on the Indian Ocean. It encompasses savannah, lakelands, the dramatic Great Rift Valley and mountain highlands. It's also home to wildlife like lions, elephants and rhinos. From Nairobi, the capital, safaris visit the Maasai Mara Reserve, known for its annual wildebeest migrations, and Amboseli National Park, offering views of Tanzania's 5,895m Mt. Kilimanjaro.</p>
+    <div id="my_map">
+      <script>
+          let countyLayer;
+
+
+        function style(feature) {
+          return {
+            fillColor: conditionalStyle(feature.properties.Shape_Leng),
+            weight: 2,
+            opacity: 1,
+            color: "white",
+            dashArray: "2",
+            fillOpacity: .6,
+          };
+        }
+
+        const conditionalStyle = (Shape_Leng) => {
+          if (Shape_Leng <= 3.0) {
+            return "purple";
+          } else if (Shape_Leng <= 7.0) {
+            return "pink";
+          } else if (Shape_Leng <= 10.0) {
+            return "green";
+          } else {
+            return "orange";
+          }
+        };
+
+        const highlightCounty=(feature)=>{
+            let layer= feature.target;
+            layer.setStyle({
+                weight:5,
+                color:"red",
+                fillColor:'red',
+                opacity:.5
+            })
+        }
+
+        const resetHighlight=(feature)=>{
+           countyLayer.resetStyle(feature.target)
+        }
+
+        const countyEachFeature=(feature,layer)=>{
+            layer.on({
+                mouseover:highlightCounty,
+                mouseout:resetHighlight
+            })
+        }
+
+        let map = L.map("my_map").setView([-1.0, 38.817223], 5.5);
+        countyLayer = L.geoJson(kenya_counties, { style: style ,onEachFeature:countyEachFeature}).addTo(
+          map
+        );
+        let osmLayer= L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        
+        let countyLegend = L.control({position:"bottomright"});
+        countyLegend.onAdd = (map)=>{
+            let legenddiv = L.DomUtil.create('legenddiv','countyLegend')
+            labels=[
+                "Shape length less than or equal to 3",
+                "Shape length less than or equal to 7",
+                "Shape length less than or equal to 10",
+                "Shape length greater than 10"
+
+
+            ],
+            countlb = [3,7,10,14];
+            legenddiv.innerHTML='<div> <b>Legend</b> </div>';
+            let grades= countlb.length
+
+            for(let i=0;i<grades;i++){
+                // console.log(i)
+                legenddiv.innerHTML += '<i style="background:'
+                + conditionalStyle(countlb[i]) + '">&nbsp;&nbsp</i>&nbsp;&nbsp;'
+                +labels[i]+'<br>';
+            }
+            let point_nairobi = [-1.286389, 36.817223]
+            let point_mombasa = [-4.0435, 39.6682]
+
+
+            let marker = L.marker(point_nairobi)
+            let marker2 = L.marker(point_mombasa)
+
+            marker.bindPopup("<b>Nairobi City 047</b> <img id='mapimage' src='https://i.natgeofe.com/n/fbc59cb3-1962-49e8-8d98-2743e0f98cdc/skyline-nairobi-kenya_16x9.jpg'></img>")
+            marker2.bindPopup("<b>Momabasa City 001</b> <img id='mapimage' src='https://www.wiomsa.org/wp-content/uploads/2019/03/Screenshot-2019-03-11-at-16.17.42.png'></img>")
+
+            marker.addTo(map);
+            marker2.addTo(map);
+
+            let markerCircle = L.circle(
+                point_mombasa,500,{
+                    color:'black',
+                    fillColor:'violet',
+                    fillOpacity:1
+                }
+            )
+
+            markerCircle.addTo(map)
+
+
+            // grades.map((val,index)=>{
+                
+            //     legenddiv.innerHTML += '<i style="background:'
+            //     + conditionalStyle(countlb[index]) + '">&nbsp;&nbsp</i>&nbsp;&nbsp;'
+            //     +labels[index]+'<br>';
+                
+
+            // })
+
+            return legenddiv
+
+
+        }
+
+        countyLegend.addTo(map)
+      </script>
+    </div>
+  </body>
+  <!-- Leaflet js -->
+  <!-- Data -->
+</html>
